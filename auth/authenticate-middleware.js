@@ -15,7 +15,6 @@ function restrict() {
                 if (err) {
                     return res.status(401).json(authError);
                 }
-
                 next();
             });
         } catch (err) {
@@ -23,3 +22,5 @@ function restrict() {
         }
     };
 }
+
+module.exports = restrict;

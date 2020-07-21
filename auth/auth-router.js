@@ -1,14 +1,22 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const Users = require("./auth-router-model");
-const restrect = require("./authenticate-middleware");
+const restrict = require("./authenticate-middleware");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-router.get("/users", async (req, res, next) => {
+router.get("/users", restrict(), async (req, res, next) => {
     try {
-        res.json(await Users.find());
+      const user = await Users.find();
+      
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found"
+        })
+      }
+
+      res.status(200).json(user)
     } catch (err) {
         next(err);
     }
@@ -57,9 +65,11 @@ router.post("/login", async (req, res, next) => {
 
         const payload = {
             userId: user.id,
-            username: user.username
+            username: user.username,
+            userRole: "normal"
         };
 
+        res.cookie("token", jwt.sign(payload, process.env.JWT_SECRET));
         res.json({
             message: `Welcome ${user.username}`
         });
@@ -70,7 +80,7 @@ router.post("/login", async (req, res, next) => {
 
 router.get("/logout", async (req, res, next) => {
     try {
-        req.destroy(err => {
+        res.destroy(err => {
             if (err) {
                 next(err);
             } else {
