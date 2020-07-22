@@ -8,15 +8,15 @@ const router = express.Router();
 
 router.get("/users", restrict(), async (req, res, next) => {
     try {
-      const user = await Users.find();
-      
-      if (!user) {
-        return res.status(404).json({
-          message: "User not found"
-        })
-      }
+        const user = await Users.find();
 
-      res.status(200).json(user)
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json(user);
     } catch (err) {
         next(err);
     }
@@ -47,7 +47,7 @@ router.post("/register", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
     try {
         const { username, password } = req.body;
-      const user = await Users.findBy({ username }).first();
+        const user = await Users.findBy({ username }).first();
 
         if (!user) {
             return res.status(401).json({
@@ -80,13 +80,8 @@ router.post("/login", async (req, res, next) => {
 
 router.get("/logout", async (req, res, next) => {
     try {
-        res.destroy(err => {
-            if (err) {
-                next(err);
-            } else {
-                res.status(204).end();
-            }
-        });
+        res.clearCookie("token");
+        res.send("You have successfully logged out!");
     } catch (err) {
         next(err);
     }
